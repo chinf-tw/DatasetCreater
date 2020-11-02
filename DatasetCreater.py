@@ -3,7 +3,8 @@ def mkdir(path):
     if not os.path.exists(path):
         os.makedirs(path)
         print("new a path with {path}".format(path=path))
-
+        pass
+    pass
 
 if __name__ == "__main__":
     import threading
@@ -117,6 +118,7 @@ if __name__ == "__main__":
                 pass
             pass
         pass
+    
     # Control + C handler
     except KeyboardInterrupt:
         isOpened.set()
