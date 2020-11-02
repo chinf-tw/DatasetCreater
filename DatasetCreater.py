@@ -33,6 +33,7 @@ if __name__ == "__main__":
     parser.add_argument("-n", "--camNumber",
                         help="This is number of camera will be opened (default is 1)",
                         type=int, default=1)
+    parser.add_argument("-p", "--preparation", action="store_true")
 
     args = parser.parse_args()
     try:
@@ -96,17 +97,18 @@ if __name__ == "__main__":
             elif key == ord('r'):
 
                 """開始錄影"""
-                for i in range(3, 0, -1):
-                    ffs = []
-                    for f in frames:
-                        ff = f.copy()
-                        cv2.putText(ff, str(i), (100, 50), cv2.FONT_HERSHEY_SIMPLEX,
-                                    1, (0, 0, 255), 3)
-                        ffs.append(ff)
-                    # Show the frame
-                    for i, ff in enumerate(ffs):
-                        cv2.imshow("frame"+str(i), ff)
-                    cv2.waitKey(1000)
+                if args.preparation:
+                    for i in range(3, 0, -1):
+                        ffs = []
+                        for f in frames:
+                            ff = f.copy()
+                            cv2.putText(ff, str(i), (100, 50), cv2.FONT_HERSHEY_SIMPLEX,
+                                        1, (0, 0, 255), 3)
+                            ffs.append(ff)
+                        # Show the frame
+                        for i, ff in enumerate(ffs):
+                            cv2.imshow("frame"+str(i), ff)
+                        cv2.waitKey(1000)
 
                 DIR = "{datasetName}/{type}".format(
                     datasetName=args.datasetName, type=args.type)
