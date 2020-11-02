@@ -33,7 +33,8 @@ if __name__ == "__main__":
     parser.add_argument("-n", "--camNumber",
                         help="This is number of camera will be opened (default is 1)",
                         type=int, default=1)
-    parser.add_argument("-p", "--preparation", action="store_true")
+    parser.add_argument("-p", "--preparation", action="store_true",
+                        help="Using this flag will have three seconds to get ready to start the action")
 
     args = parser.parse_args()
     try:
@@ -70,7 +71,8 @@ if __name__ == "__main__":
 
             # Rotate Specified frame
             for ne in needToRotate:
-                frames[ne] = cv2.rotate(frames[ne], cv2.ROTATE_90_COUNTERCLOCKWISE)
+                frames[ne] = cv2.rotate(
+                    frames[ne], cv2.ROTATE_90_COUNTERCLOCKWISE)
                 # frame[ne] = cv2.resize(frame[ne], globalSize)
 
             # Write frame to file
@@ -96,7 +98,7 @@ if __name__ == "__main__":
                 needToRotate = [int(d) for d in selected_camera.split(" ")]
             elif key == ord('r'):
                 """開始錄影"""
-                if writers != [] :
+                if writers != []:
                     continue
                 if args.preparation:
                     for i in range(3, 0, -1):
