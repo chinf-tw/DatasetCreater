@@ -1,14 +1,4 @@
 # -*- coding:utf-8 -*-
-# def read_cam(cap, idx, queue, flag):
-
-#     while not flag.is_set():
-#         success, fr = cap[idx].read()
-#         if success:
-#             queue.put(fr)
-#         else:
-#             print(f"Error reading camera from {idx}")
-#             continue
-#         flag.wait(0.01)
 def mkdir(path):
     if not os.path.exists(path):
         os.makedirs(path)
@@ -45,8 +35,9 @@ if __name__ == "__main__":
     try:
         # initialize the camera to cap list
         for i in range(args.camNumber):
-            # cap.append(cv2.VideoCapture(i + cv2.CAP_DSHOW))
-            cap.append(cv2.VideoCapture(i))
+            cap.append(cv2.VideoCapture(i + cv2.CAP_DSHOW))
+            # 如果上面程式無法正常執行就用下面這個
+            # cap.append(cv2.VideoCapture(i))
             print(cv2.CAP_DSHOW)
             qu.append(queue.Queue())
             pass
