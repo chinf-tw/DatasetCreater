@@ -3,8 +3,7 @@ def mkdir(path):
     if not os.path.exists(path):
         os.makedirs(path)
         print("new a path with {path}".format(path=path))
-        pass
-    pass
+
 
 if __name__ == "__main__":
     import threading
@@ -13,6 +12,8 @@ if __name__ == "__main__":
     import numpy as np
     import os
     import argparse
+    import time
+
     cap = []
     qu = []
     needToRotate = []
@@ -21,6 +22,7 @@ if __name__ == "__main__":
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
     isOpened = threading.Event()
     globalSize = None
+    wantShape = (448, 448)
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-dn", "--datasetName",
@@ -41,49 +43,44 @@ if __name__ == "__main__":
             # cap.append(cv2.VideoCapture(i))
             print(cv2.CAP_DSHOW)
             qu.append(queue.Queue())
-            pass
 
         # set cap list to same size (globalSize)
         for i, c in enumerate(cap):
             # 1920 1080
-            c.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
-            c.set(cv2.CAP_PROP_FRAME_HEIGHT, 300)
+            c.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+            c.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
             width = c.get(cv2.CAP_PROP_FRAME_WIDTH)
             height = c.get(cv2.CAP_PROP_FRAME_HEIGHT)
             print("width: ", width, "\nheight: ", height)
             globalSize = (int(width), int(height))
 
         while not isOpened.is_set():
-            frame = []
+            frames = []
             # Get frame
             for i, c in enumerate(cap):
                 success, fr = c.read()
+                fr = cv2.resize(fr, wantShape)
                 if success:
-                    frame.append(fr)
+                    frames.append(fr)
                 else:
-                    frame.append(
+                    frames.append(
                         np.zeros((globalSize[1], globalSize[0], 3), dtype=np.uint8))
                     print("Error reading camera from {i}".format(i=i))
-                    pass
-                pass
 
             # Rotate Specified frame
             for ne in needToRotate:
-                frame[ne] = np.rot90(frame[ne])
-                frame[ne] = cv2.resize(frame[ne], globalSize)
-                pass
+                frames[ne] = np.rot90(frames[ne])
+                # frame[ne] = cv2.resize(frame[ne], globalSize)
 
             # Write frame to file
             for i, w in enumerate(writers):
-                w.write(frame[i])
-                cv2.putText(frame[i], "Recording", (100, 50), cv2.FONT_HERSHEY_SIMPLEX,
-                            1, (0, 0, 255), 2, cv2.LINE_AA)
-                pass
+                w.write(frames[i])
+                cv2.putText(frames[i], "Recording", (100, 50), cv2.FONT_HERSHEY_SIMPLEX,
+                            1, (0, 0, 255), 2)
 
             # Show the frame
-            for f in range(0, len(frame)):
-                cv2.imshow("frame"+str(f), frame[f])
-                pass
+            for f in range(0, len(frames)):
+                cv2.imshow("frame"+str(f), frames[f])
 
             # keyborad handler with opencv
             key = cv2.waitKey(1) & 0xFF
@@ -95,9 +92,22 @@ if __name__ == "__main__":
             elif key == ord('n'):
                 """透過 python input 指定要旋轉的 frames"""
                 selected_camera = input("Input Rotate Camera>>")
-                needToRotate.append(int(selected_camera))
+                needToRotate = [int(d) for d in selected_camera.split(" ")]
             elif key == ord('r'):
+
                 """開始錄影"""
+                for i in range(3, 0, -1):
+                    ffs = []
+                    for f in frames:
+                        ff = f.copy()
+                        cv2.putText(ff, str(i), (100, 50), cv2.FONT_HERSHEY_SIMPLEX,
+                                    1, (0, 0, 255), 3)
+                        ffs.append(ff)
+                    # Show the frame
+                    for i, ff in enumerate(ffs):
+                        cv2.imshow("frame"+str(i), ff)
+                    cv2.waitKey(1000)
+
                 DIR = "{datasetName}/{type}".format(
                     datasetName=args.datasetName, type=args.type)
                 mkdir(args.datasetName)
@@ -108,20 +118,16 @@ if __name__ == "__main__":
                 print("目前有的資料量", counter)
                 for i in range(len(cap)):
                     writer = cv2.VideoWriter(DIR + '/' + str(1 + i+counter) + '.avi',
-                                             fourcc, 30.0, globalSize)
+                                             fourcc, 30.0, wantShape)
                     writers.append(writer)
-                pass
+
             elif key == ord('e'):
                 """結束錄影"""
                 writers = []
                 print("Record Done")
-                pass
-            pass
-        pass
-    
+
     # Control + C handler
     except KeyboardInterrupt:
         isOpened.set()
         for c in cap:
             c.release()
-    pass
