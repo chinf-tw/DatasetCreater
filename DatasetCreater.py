@@ -70,13 +70,13 @@ if __name__ == "__main__":
 
             # Rotate Specified frame
             for ne in needToRotate:
-                frames[ne] = np.rot90(frames[ne])
+                frames[ne] = cv2.rotate(frames[ne], cv2.ROTATE_90_COUNTERCLOCKWISE)
                 # frame[ne] = cv2.resize(frame[ne], globalSize)
 
             # Write frame to file
             for i, w in enumerate(writers):
                 w.write(frames[i])
-                cv2.putText(frames[i], "Recording", (100, 50), cv2.FONT_HERSHEY_SIMPLEX,
+                cv2.putText(frames[i], "Recording", (50, 50), cv2.FONT_HERSHEY_SIMPLEX,
                             1, (0, 0, 255), 2)
 
             # Show the frame
@@ -95,8 +95,9 @@ if __name__ == "__main__":
                 selected_camera = input("Input Rotate Camera>>")
                 needToRotate = [int(d) for d in selected_camera.split(" ")]
             elif key == ord('r'):
-
                 """開始錄影"""
+                if writers != [] :
+                    continue
                 if args.preparation:
                     for i in range(3, 0, -1):
                         ffs = []
